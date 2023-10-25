@@ -119,6 +119,7 @@ const DEBUGCON_DEVICE_NAME: &str = "__debug_console";
 const GPIO_DEVICE_NAME: &str = "__gpio";
 const RNG_DEVICE_NAME: &str = "__rng";
 const IOMMU_DEVICE_NAME: &str = "__iommu";
+const MEMCTL_DEVICE_NAME: &str = "__memctl";
 const BALLOON_DEVICE_NAME: &str = "__balloon";
 const CONSOLE_DEVICE_NAME: &str = "__console";
 const PVPANIC_DEVICE_NAME: &str = "__pvpanic";
@@ -195,6 +196,9 @@ pub enum DeviceManagerError {
 
     /// Cannot create virtio-balloon device
     CreateVirtioBalloon(io::Error),
+
+    /// Cannot create memctl device
+    CreateMemctl(io::Error),
 
     /// Cannot create virtio-watchdog device
     CreateVirtioWatchdog(io::Error),
@@ -939,6 +943,8 @@ pub struct DeviceManager {
     // GPIO device for AArch64
     gpio_device: Option<Arc<Mutex<devices::legacy::Gpio>>>,
 
+    memctl_device: Option<Arc<devices::memctl::Memctl>>,
+
     // pvpanic device
     pvpanic_device: Option<Arc<Mutex<devices::PvPanicDevice>>>,
 
@@ -1186,6 +1192,7 @@ impl DeviceManager {
             virtio_mem_devices: Vec::new(),
             #[cfg(target_arch = "aarch64")]
             gpio_device: None,
+            memctl_device: None,
             pvpanic_device: None,
             force_iommu,
             io_uring_supported: None,
@@ -1319,6 +1326,11 @@ impl DeviceManager {
         self.add_pci_devices(virtio_devices.clone())?;
 
         self.virtio_devices = virtio_devices;
+
+        // Add memctl if required
+        if self.config.lock().unwrap().memctl.is_some() {
+            self.memctl_device = Some(self.make_memctl_device()?);
+        }
 
         if self.config.clone().lock().unwrap().pvpanic {
             self.pvpanic_device = self.add_pvpanic_device()?;
@@ -3177,6 +3189,36 @@ impl DeviceManager {
         }
 
         Ok(devices)
+    }
+
+    fn make_memctl_device(&mut self) -> DeviceManagerResult<Arc<devices::memctl::Memctl>> {
+        let id = String::from(MEMCTL_DEVICE_NAME);
+
+        info!("Creating memctl device: id = {}", id);
+        let memctl_device = Arc::new(
+            devices::memctl::Memctl::new(
+                id.clone(),
+                self.memory_manager.lock().unwrap().guest_memory(),
+            )
+            .map_err(DeviceManagerError::CreateMemctl)?,
+        );
+
+        self.io_bus()
+            .insert(
+                memctl_device.clone(),
+                devices::memctl::PORT as u64,
+                devices::memctl::NR_PORTS as u64,
+            )
+            .map_err(DeviceManagerError::BusError)?;
+
+        self.bus_devices.push(memctl_device.clone());
+
+        self.device_tree
+            .lock()
+            .unwrap()
+            .insert(id.clone(), device_node!(id));
+
+        Ok(memctl_device)
     }
 
     fn make_virtio_balloon_devices(&mut self) -> DeviceManagerResult<Vec<MetaVirtioDevice>> {
