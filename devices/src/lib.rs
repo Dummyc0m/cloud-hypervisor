@@ -23,6 +23,7 @@ pub mod interrupt_controller;
 #[cfg(target_arch = "x86_64")]
 pub mod ioapic;
 pub mod legacy;
+pub mod memctl;
 pub mod pvpanic;
 pub mod tpm;
 

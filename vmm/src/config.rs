@@ -415,6 +415,7 @@ pub struct VmParams<'a> {
     pub net: Option<Vec<&'a str>>,
     pub rng: &'a str,
     pub balloon: Option<&'a str>,
+    pub memctl: bool,
     pub fs: Option<Vec<&'a str>>,
     pub pmem: Option<Vec<&'a str>>,
     pub serial: &'a str,
@@ -465,6 +466,7 @@ impl<'a> VmParams<'a> {
         #[cfg(target_arch = "x86_64")]
         let debug_console = args.get_one::<String>("debug-console").unwrap().as_str();
         let balloon = args.get_one::<String>("balloon").map(|x| x as &str);
+        let memctl = args.get_flag("memctl");
         let fs: Option<Vec<&str>> = args
             .get_many::<String>("fs")
             .map(|x| x.map(|y| y as &str).collect());
@@ -509,6 +511,7 @@ impl<'a> VmParams<'a> {
             net,
             rng,
             balloon,
+            memctl,
             fs,
             pmem,
             serial,
@@ -2444,6 +2447,8 @@ impl VmConfig {
             balloon = Some(BalloonConfig::parse(balloon_params)?);
         }
 
+        let memctl: Option<MemctlConfig> = vm_params.memctl.then_some(MemctlConfig::default());
+
         let mut fs: Option<Vec<FsConfig>> = None;
         if let Some(fs_list) = &vm_params.fs {
             let mut fs_config_list = Vec::new();
@@ -2570,6 +2575,7 @@ impl VmConfig {
             net,
             rng,
             balloon,
+            memctl,
             fs,
             pmem,
             serial,
@@ -2696,6 +2702,7 @@ impl Clone for VmConfig {
             net: self.net.clone(),
             rng: self.rng.clone(),
             balloon: self.balloon.clone(),
+            memctl: self.memctl.clone(),
             fs: self.fs.clone(),
             pmem: self.pmem.clone(),
             serial: self.serial.clone(),

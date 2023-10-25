@@ -336,6 +336,15 @@ pub struct BalloonConfig {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+pub struct MemctlConfig {}
+
+impl Default for MemctlConfig {
+    fn default() -> Self {
+        Self {}
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct FsConfig {
     pub tag: String,
     pub socket: PathBuf,
@@ -552,6 +561,7 @@ pub struct VmConfig {
     #[serde(default)]
     pub rng: RngConfig,
     pub balloon: Option<BalloonConfig>,
+    pub memctl: Option<MemctlConfig>,
     pub fs: Option<Vec<FsConfig>>,
     pub pmem: Option<Vec<PmemConfig>>,
     #[serde(default = "default_serial")]

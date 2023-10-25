@@ -279,6 +279,14 @@ fn create_app(default_vcpus: String, default_memory: String, default_rng: String
                 .group("vm-config"),
         )
         .arg(
+            Arg::new("memctl")
+                .long("memctl")
+                .help("Memctl device")
+                .num_args(0)
+                .action(ArgAction::SetTrue)
+                .group("vm-config"),
+        )
+        .arg(
             Arg::new("fs")
                 .long("fs")
                 .help(config::FsConfig::SYNTAX)

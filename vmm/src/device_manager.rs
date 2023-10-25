@@ -119,6 +119,7 @@ const DEBUGCON_DEVICE_NAME: &str = "__debug_console";
 const GPIO_DEVICE_NAME: &str = "__gpio";
 const RNG_DEVICE_NAME: &str = "__rng";
 const IOMMU_DEVICE_NAME: &str = "__iommu";
+const MEMCTL_DEVICE_NAME: &str = "__memctl";
 const BALLOON_DEVICE_NAME: &str = "__balloon";
 const CONSOLE_DEVICE_NAME: &str = "__console";
 const PVPANIC_DEVICE_NAME: &str = "__pvpanic";
@@ -195,6 +196,9 @@ pub enum DeviceManagerError {
 
     /// Cannot create virtio-balloon device
     CreateVirtioBalloon(io::Error),
+
+    /// Cannot create memctl device
+    CreateMemctl(io::Error),
 
     /// Cannot create virtio-watchdog device
     CreateVirtioWatchdog(io::Error),
@@ -2312,6 +2316,9 @@ impl DeviceManager {
 
         devices.append(&mut self.make_virtio_mem_devices()?);
 
+        // Add memctl if required
+        devices.append(&mut self.make_memctl_devices()?);
+
         // Add virtio-balloon if required
         devices.append(&mut self.make_virtio_balloon_devices()?);
 
@@ -3174,6 +3181,42 @@ impl DeviceManager {
                     device_node!(memory_zone_id, virtio_mem_device),
                 );
             }
+        }
+
+        Ok(devices)
+    }
+
+    fn make_memctl_devices(&mut self) -> DeviceManagerResult<Vec<MetaVirtioDevice>> {
+        let mut devices = Vec::new();
+
+        if let Some(_) = &self.config.lock().unwrap().memctl {
+            let id = String::from(MEMCTL_DEVICE_NAME);
+
+            info!("Creating memctl device: id = {}", id);
+            let memctl_device = Arc::new(Mutex::new(
+                devices::memctl::Memctl::new(
+                    id.clone(),
+                    self.seccomp_action.clone(),
+                    self.exit_evt
+                        .try_clone()
+                        .map_err(DeviceManagerError::EventFd)?,
+                )
+                .map_err(DeviceManagerError::CreateVirtioBalloon)?,
+            ));
+
+            devices.push(MetaVirtioDevice {
+                virtio_device: Arc::clone(&memctl_device)
+                    as Arc<Mutex<dyn virtio_devices::VirtioDevice>>,
+                iommu: false,
+                id: id.clone(),
+                pci_segment: 0,
+                dma_handler: None,
+            });
+
+            self.device_tree
+                .lock()
+                .unwrap()
+                .insert(id.clone(), device_node!(id, memctl_device));
         }
 
         Ok(devices)
