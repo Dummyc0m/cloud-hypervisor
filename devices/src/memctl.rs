@@ -7,6 +7,7 @@ use std::{
     result,
     sync::{atomic::AtomicBool, Arc, Barrier},
     thread::{self, JoinHandle},
+    time::SystemTime,
 };
 
 use anyhow::anyhow;
@@ -342,6 +343,7 @@ impl MemctlEpollHandler {
         length: u64,
         arg: u64,
     ) -> Result<MemctlResp, Error> {
+        let time = SystemTime::now();
         let result = match func_code {
             FunctionCode::Info => {
                 return Ok(MemctlResp {
@@ -375,6 +377,10 @@ impl MemctlEpollHandler {
             }
             FunctionCode::SetVMAAnonName => Self::set_vma_anon_name(memory, addr, length, arg),
         };
+        let processing_time = time.elapsed();
+        if let Ok(processing_time) = processing_time {
+            warn!("memctl processing took {}us", processing_time.as_micros())
+        }
         result.map(|_| MemctlResp::default())
     }
 
