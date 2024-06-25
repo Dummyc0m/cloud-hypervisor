@@ -61,7 +61,7 @@ signal-hook = "0.3.17"
 thiserror = "1.0.60"
 tracer = { path = "../tracer" }
 uuid = "1.8.0"
-vfio-ioctls = { git = "https://github.com/rust-vmm/vfio", branch = "main", default-features = false }
+vfio-ioctls = { git = "https://github.com/Dummyc0m/vfio", branch = "main", default-features = false }
 vfio_user = { git = "https://github.com/rust-vmm/vfio-user", branch = "main" }
 virtio-devices = { path = "../virtio-devices" }
 virtio-queue = "0.12.0"

@@ -20,7 +20,7 @@ thiserror = "1.0.60"
 vfio-bindings = { git = "https://github.com/rust-vmm/vfio", branch = "main", features = [
   "fam-wrappers",
 ] }
-vfio-ioctls = { git = "https://github.com/rust-vmm/vfio", branch = "main", default-features = false }
+vfio-ioctls = { git = "https://github.com/Dummyc0m/vfio", branch = "main", default-features = false }
 vfio_user = { git = "https://github.com/rust-vmm/vfio-user", branch = "main" }
 vm-allocator = { path = "../vm-allocator" }
 vm-device = { path = "../vm-device" }
