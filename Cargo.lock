@@ -993,7 +993,7 @@ dependencies = [
  "serde",
  "serde_with",
  "thiserror",
- "vfio-ioctls",
+ "vfio-ioctls 0.2.0 (git+https://github.com/rust-vmm/vfio?branch=main)",
  "vm-memory",
  "vmm-sys-util",
 ]
@@ -1501,8 +1501,8 @@ dependencies = [
  "log",
  "serde",
  "thiserror",
- "vfio-bindings",
- "vfio-ioctls",
+ "vfio-bindings 0.4.0 (git+https://github.com/rust-vmm/vfio?branch=main)",
+ "vfio-ioctls 0.2.0 (git+https://github.com/rust-vmm/vfio?branch=main)",
  "vfio_user",
  "vm-allocator",
  "vm-device",
@@ -2211,8 +2211,31 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "vfio-bindings"
 version = "0.4.0"
+source = "git+https://github.com/Dummyc0m/vfio?branch=main#88aad21e72e43dabb9ef4d3223e91f58e51efd7f"
+
+[[package]]
+name = "vfio-bindings"
+version = "0.4.0"
 source = "git+https://github.com/rust-vmm/vfio?branch=main#64171f3da1af7926adf162ecf545cb05fb9243c9"
 dependencies = [
+ "vmm-sys-util",
+]
+
+[[package]]
+name = "vfio-ioctls"
+version = "0.2.0"
+source = "git+https://github.com/Dummyc0m/vfio?branch=main#88aad21e72e43dabb9ef4d3223e91f58e51efd7f"
+dependencies = [
+ "byteorder",
+ "kvm-bindings",
+ "kvm-ioctls",
+ "libc",
+ "log",
+ "mshv-bindings",
+ "mshv-ioctls",
+ "thiserror",
+ "vfio-bindings 0.4.0 (git+https://github.com/Dummyc0m/vfio?branch=main)",
+ "vm-memory",
  "vmm-sys-util",
 ]
 
@@ -2229,7 +2252,7 @@ dependencies = [
  "mshv-bindings",
  "mshv-ioctls",
  "thiserror",
- "vfio-bindings",
+ "vfio-bindings 0.4.0 (git+https://github.com/rust-vmm/vfio?branch=main)",
  "vm-memory",
  "vmm-sys-util",
 ]
@@ -2246,7 +2269,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "thiserror",
- "vfio-bindings",
+ "vfio-bindings 0.4.0 (git+https://github.com/rust-vmm/vfio?branch=main)",
  "vm-memory",
  "vmm-sys-util",
 ]
@@ -2383,7 +2406,7 @@ dependencies = [
  "hypervisor",
  "serde",
  "thiserror",
- "vfio-ioctls",
+ "vfio-ioctls 0.2.0 (git+https://github.com/Dummyc0m/vfio?branch=main)",
  "vm-memory",
  "vmm-sys-util",
 ]
@@ -2469,7 +2492,7 @@ dependencies = [
  "thiserror",
  "tracer",
  "uuid",
- "vfio-ioctls",
+ "vfio-ioctls 0.2.0 (git+https://github.com/rust-vmm/vfio?branch=main)",
  "vfio_user",
  "virtio-devices",
  "virtio-queue",
